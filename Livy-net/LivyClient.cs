@@ -12,7 +12,7 @@ namespace Livy_net
 {
     public enum SessionKind {spark,pyspark,pyspark3,sparkr};
 
-    public class LivyClient
+    public class LivyClient : ILivyClient
     {
         private string livyUrl;
         private string user;

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Livy-net")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Wrapper for connecting to a Livy api")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("Livy-net")]
