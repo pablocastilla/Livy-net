@@ -37,13 +37,7 @@ namespace Livy_net
             Session response = null;
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(livyUrl);
-
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var byteArray = Encoding.ASCII.GetBytes(user + ":" + password);
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-
+                ConfigureClient(client);
 
                 JToken jt = JToken.Parse(data);
                 string formattedJson = jt.ToString();
@@ -56,11 +50,17 @@ namespace Livy_net
                     response = await result.Content.ReadAsAsync<Session>().ConfigureAwait(false);
 
                 }
+                else
+                {
+                    throw new Exception("Livy open session failed: code:"+result.StatusCode+" reason:"+result.ReasonPhrase);
+                }
 
             }
 
             return response;
         }
+
+       
 
         public async Task<Session> GetSessionState(string sessionId)
         {
@@ -69,19 +69,18 @@ namespace Livy_net
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(livyUrl);
+                ConfigureClient(client);
 
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var byteArray = Encoding.ASCII.GetBytes(user + ":" + password);
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-                                              
                 HttpResponseMessage result = await client.GetAsync("/livy/sessions/"+sessionId);
 
                 if (result.IsSuccessStatusCode)
                 {
                     response = await result.Content.ReadAsAsync<Session>().ConfigureAwait(false);
 
+                }
+                else
+                {
+                    throw new Exception("Livy get session state failed:  code:" + result.StatusCode + " reason:" + result.ReasonPhrase);
                 }
 
             }
@@ -94,13 +93,7 @@ namespace Livy_net
             
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(livyUrl);
-
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var byteArray = Encoding.ASCII.GetBytes(user + ":" + password);
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-                                                
+                ConfigureClient(client);
 
                 HttpResponseMessage result = await client.DeleteAsync("/livy/sessions/"+ sessionId);
 
@@ -108,6 +101,10 @@ namespace Livy_net
                 {
                     
 
+                }
+                else
+                {
+                    throw new Exception("Livy close session failed: code:" + result.StatusCode + " reason:" + result.ReasonPhrase);
                 }
 
             }
@@ -124,13 +121,7 @@ namespace Livy_net
             Statement response = null;
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(livyUrl);
-
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var byteArray = Encoding.ASCII.GetBytes(user + ":" + password);
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-
+                ConfigureClient(client);
 
                 JToken jt = JToken.Parse(data);
                 string formattedJson = jt.ToString();
@@ -145,7 +136,7 @@ namespace Livy_net
                 }
                 else
                 {
-                    var s = await result.Content.ReadAsAsync<string>().ConfigureAwait(false);
+                    throw new Exception("Livy post statement failed: code:" + result.StatusCode + " reason:" + result.ReasonPhrase);
                 }
 
             }
@@ -160,14 +151,8 @@ namespace Livy_net
             Statements response = null;
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(livyUrl);
+                ConfigureClient(client);
 
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var byteArray = Encoding.ASCII.GetBytes(user + ":" + password);
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-
-                              
 
                 HttpResponseMessage result = await client.GetAsync("/livy/sessions/" + sessionId + "/statements");
 
@@ -175,6 +160,10 @@ namespace Livy_net
                 {
                     response = await result.Content.ReadAsAsync<Statements>().ConfigureAwait(false);
 
+                }
+                else
+                {
+                    throw new Exception("Livy get statement result failed: code:" + result.StatusCode + " reason:" + result.ReasonPhrase);
                 }
 
             }
@@ -189,13 +178,7 @@ namespace Livy_net
             Log response = null;
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(livyUrl);
-
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var byteArray = Encoding.ASCII.GetBytes(user + ":" + password);
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-
+                ConfigureClient(client);
 
 
                 HttpResponseMessage result = await client.GetAsync("/livy/sessions/" + sessionId + "/logs");
@@ -205,11 +188,25 @@ namespace Livy_net
                     response = await result.Content.ReadAsAsync<Log>().ConfigureAwait(false);
 
                 }
+                else
+                {
+                    throw new Exception("Livy get session log failed: code:" + result.StatusCode + " reason:" + result.ReasonPhrase);
+                }
 
             }
 
             return response;
 
+        }
+
+        private void ConfigureClient(HttpClient client)
+        {
+            client.BaseAddress = new Uri(livyUrl);
+
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var byteArray = Encoding.ASCII.GetBytes(user + ":" + password);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
         }
 
     }

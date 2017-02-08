@@ -28,7 +28,7 @@ namespace Livy_net.Tests
 
                     System.Threading.Thread.Sleep(1000);
                 }
-
+                                
                 var code = "import random\n" +
                             "NUM_SAMPLES = 100000\n" +
 
@@ -51,8 +51,7 @@ namespace Livy_net.Tests
                     i++;
                 }
 
-                var log = client.GetSessionLog(sessionData.id.ToString()).Result;
-
+               
                 Assert.True(result.statements[0].output.result.Contains("Pi is roughly"));
 
             }
