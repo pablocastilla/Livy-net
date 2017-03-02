@@ -9,4 +9,4 @@ To execute the tests agains HDInsight you can add your connection info directly 
 
 https://www.nuget.org/packages/Livy-net/
 
-    PM> Install-Package NServiceBus.Transports.Kafka
+    PM> Install-Package Livy-net
