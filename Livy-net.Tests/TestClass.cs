@@ -109,5 +109,53 @@ namespace Livy_net.Tests
                 client.CloseSession(sessionData.id.ToString()).Wait();
             }
         }
+
+        public void PostStoredJob_GetStatementResult_Test()
+        {
+            var client = new LivyClient(Settings.Default.LivyUrl, Settings.Default.User, Settings.Default.Password);
+
+            var sessionData = client.OpenSession().Result;
+
+
+            try
+            {
+                while (sessionData.state == SessionState.starting)
+                {
+                    sessionData = client.GetSessionState(sessionData.id.ToString()).Result;
+
+                    System.Threading.Thread.Sleep(1000);
+                }
+
+                var code = "import random\n" +
+                            "NUM_SAMPLES = 100000\n" +
+
+                            "def sample(p):\n" +
+                            "   x, y = random.random(), random.random()\n" +
+                            "   return 1 if x * x + y * y < 1 else 0\n\n" +
+
+                            "count = sc.parallelize(range(0, NUM_SAMPLES)).map(sample).reduce(lambda a, b: a + b)\n" +
+                            "print (\"Pi is roughly % f\" % (4.0 * count / NUM_SAMPLES))";
+
+                var codeResult = client.PostStatement(sessionData.id.ToString(), code).Result;
+
+                int i = 0;
+                Statement result = null;
+                while (i < 30 && !(result != null && result.state == StatementState.available))
+                {
+                    result = client.GetStatementResult(sessionData.id.ToString(), codeResult.id.ToString()).Result;
+
+                    System.Threading.Thread.Sleep(1000);
+                    i++;
+                }
+
+
+                Assert.True(result.output.result.Contains("Pi is roughly"));
+
+            }
+            finally
+            {
+                client.CloseSession(sessionData.id.ToString()).Wait();
+            }
+        }
     }
 }
