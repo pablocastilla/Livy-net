@@ -11,8 +11,16 @@ namespace Livy_net
     public class Statement
     {
         public int id { get; set; }
-
-        [JsonConverter(typeof(StringEnumConverter))]
+        
+        /// <summary>
+        ///  waiting	Statement is enqueued but execution hasn't started
+        ///running Statement is currently running
+        ///available Statement has a response ready
+        ///error Statement failed
+        ///cancelling Statement is being cancelling
+        ///cancelled Statement is cancelled
+        /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]        
         public StatementState state { get; set; }
 
         public Output output { get; set; }

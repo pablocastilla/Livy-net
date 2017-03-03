@@ -27,7 +27,11 @@ namespace Livy_net
             this.kind = kind;
         }
 
-        
+        /// <summary>
+        /// Creates a new interactive Scala, Python, or R shell in the cluster.
+        /// </summary>
+        /// <returns></returns>
+
         public async Task<Session> OpenSession()
         {
 
@@ -60,8 +64,12 @@ namespace Livy_net
             return response;
         }
 
-       
 
+        /// <summary>
+        /// Returns the state of session.
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
         public async Task<Session> GetSessionState(string sessionId)
         {
 
@@ -88,6 +96,11 @@ namespace Livy_net
             return response;
         }
 
+        /// <summary>
+        /// Kills the Session job.
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
         public async Task CloseSession(string sessionId)
         {          
             
@@ -112,6 +125,12 @@ namespace Livy_net
             await Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Runs a statement in a specific session.Stament could be a Scala, Java or Phyton job
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <param name="statement"></param>
+        /// <returns></returns>
         public async Task<Statement> PostStatement(string sessionId, string statement)
         {
 
@@ -144,6 +163,11 @@ namespace Livy_net
             return response;
 
         }
+        /// <summary>
+        /// Returns all the statements in a session.
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
 
         public async Task<Statements> GetStatementsResult(string sessionId)
         {
@@ -169,7 +193,38 @@ namespace Livy_net
             }
 
             return response;
+        }
 
+        /// <summary>
+        /// Returns a specified statement in a session.
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <param name="stamentId"></param>
+        /// <returns></returns>
+        public async Task<Statement> GetStatementResult(string sessionId, string statementId)
+        {
+
+            Statement response = null;
+            using (var client = new HttpClient())
+            {
+                ConfigureClient(client);
+
+
+                HttpResponseMessage result = await client.GetAsync("/livy/sessions/" + sessionId + "/statements/" + statementId);
+
+                if (result.IsSuccessStatusCode)
+                {
+                    response = await result.Content.ReadAsAsync<Statement>().ConfigureAwait(false);
+
+                }
+                else
+                {
+                    throw new Exception("Livy get statement result failed: code:" + result.StatusCode + " reason:" + result.ReasonPhrase);
+                }
+
+            }
+
+            return response;
         }
 
         public async Task<Log> GetSessionLog(string sessionId)
@@ -208,6 +263,6 @@ namespace Livy_net
             var byteArray = Encoding.ASCII.GetBytes(user + ":" + password);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
         }
-
+     
     }
 }

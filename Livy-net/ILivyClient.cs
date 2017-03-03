@@ -10,5 +10,7 @@ namespace Livy_net
         Task<Statements> GetStatementsResult(string sessionId);
         Task<Session> OpenSession();
         Task<Statement> PostStatement(string sessionId, string statement);
+
+        Task<Statement> GetStatementResult(string sessionId, string stamentId);
     }
 }

@@ -239,3 +239,4 @@ ModelManifest.xml
 .paket/paket.exe
 
 Livy-net.Tests/app.Debug.config
+/Livy-net.Tests/app.Release.config
