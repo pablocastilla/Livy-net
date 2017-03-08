@@ -65,6 +65,40 @@ namespace Livy_net
         }
 
 
+        public async Task<Batch> OpenBatch(string file,string className)
+        {
+
+            //var data = "{'file': '" + file + "' " +",'args':['2']}";
+            var data = "{'file': '" + file+ "','className': '"+className+"'}";
+
+
+            Batch response = null;
+            using (var client = new HttpClient())
+            {
+                ConfigureClient(client);
+
+                JToken jt = JToken.Parse(data);
+                string formattedJson = jt.ToString();
+
+
+                HttpResponseMessage result = await client.PostAsync("/livy/batches", new StringContent(formattedJson, Encoding.UTF8, "application/json"));
+
+                if (result.IsSuccessStatusCode)
+                {
+                    response = await result.Content.ReadAsAsync<Batch>().ConfigureAwait(false);
+
+                }
+                else
+                {
+                    throw new Exception("Livy open batchpost  failed: code:" + result.StatusCode + " reason:" + result.ReasonPhrase);
+                }
+
+            }
+
+            return response;
+        }
+
+
         /// <summary>
         /// Returns the state of session.
         /// </summary>
@@ -118,6 +152,36 @@ namespace Livy_net
                 else
                 {
                     throw new Exception("Livy close session failed: code:" + result.StatusCode + " reason:" + result.ReasonPhrase);
+                }
+
+            }
+
+            await Task.CompletedTask;
+        }
+
+
+        /// <summary>
+        /// Kills the Batch job.
+        /// </summary>
+        /// <param name="batchId"></param>
+        /// <returns></returns>
+        public async Task CloseBatch(string batchId)
+        {
+
+            using (var client = new HttpClient())
+            {
+                ConfigureClient(client);
+
+                HttpResponseMessage result = await client.DeleteAsync("/livy/batches/" + batchId);
+
+                if (result.IsSuccessStatusCode)
+                {
+
+
+                }
+                else
+                {
+                    throw new Exception("Livy close batch failed: code:" + result.StatusCode + " reason:" + result.ReasonPhrase);
                 }
 
             }
@@ -263,6 +327,37 @@ namespace Livy_net
             var byteArray = Encoding.ASCII.GetBytes(user + ":" + password);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
         }
-     
+
+
+
+        /// <summary>
+        /// Returns the batch session information.
+        /// </summary>
+        /// <param name="batchId"></param>
+        /// <returns></returns>
+        public async Task<Batch> GetBatchState(string batchId)
+        {
+            Batch response = null;
+
+            using (var client = new HttpClient())
+            {
+                ConfigureClient(client);
+
+                HttpResponseMessage result = await client.GetAsync("/livy/batches/" + batchId);
+
+                if (result.IsSuccessStatusCode)
+                {
+                    response = await result.Content.ReadAsAsync<Batch>().ConfigureAwait(false);
+
+                }
+                else
+                {
+                    throw new Exception("Livy get batch state failed:  code:" + result.StatusCode + " reason:" + result.ReasonPhrase);
+                }
+
+            }
+
+            return response;
+        }
     }
 }

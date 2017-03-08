@@ -13,5 +13,7 @@ namespace Livy_net
         public string state { get; set; }
 
         public string[] log { get; set; }
+
+        public string appId { get; set; }
     }
 }

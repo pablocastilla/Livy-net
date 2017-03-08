@@ -12,5 +12,11 @@ namespace Livy_net
         Task<Statement> PostStatement(string sessionId, string statement);
 
         Task<Statement> GetStatementResult(string sessionId, string stamentId);
+
+        Task<Batch> OpenBatch(string file,string className);
+        Task CloseBatch(string batchId);
+
+        Task<Batch> GetBatchState(string batchId);
+
     }
 }
